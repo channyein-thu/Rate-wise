@@ -1,4 +1,6 @@
+import { create } from "domain";
 import { PrismaClient } from "../../generated/prisma";
+import { prismaExtend } from "./extendPrisma";
 
 const prisma = new PrismaClient();
 
@@ -19,8 +21,29 @@ export const getCourseList = async (options: any) => {
 };
 
 export const getCourseById = async (id: number) => {
-  return prisma.course.findUnique({
+  return prismaExtend.course.findUnique({
     where: { id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      code: true,
+      credits: true,
+      faculty: true,
+      averageRate: true,
+      updatedAt: true,
+      reviews: {
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          updatedAt: true,
+
+          // Add other fields as needed, but omit 'createAt'
+          // createAt: false, // Do NOT include this line
+        },
+      },
+    },
   });
 };
 

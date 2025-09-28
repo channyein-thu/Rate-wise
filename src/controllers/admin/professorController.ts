@@ -1,5 +1,5 @@
 import e, { Request, Response, NextFunction } from "express";
-import { body, validationResult, query } from "express-validator";
+import { body, validationResult, query, param } from "express-validator";
 import { createError } from "../../utils/error";
 import { errorCode } from "../../../config/errorCode";
 
@@ -16,6 +16,7 @@ import {
   getProfessorList,
   updateOneProfessor,
 } from "../../services/professorService";
+import { tryCatch } from "bullmq";
 
 const removeFile = async (originalFile: string) => {
   try {
@@ -64,13 +65,12 @@ export const createProfessor = [
       );
     }
 
-    const profileImage = req.file.filename;
+    const image = req.file.filename;
 
     const existingProfessor = await getProfessorByName(name);
     if (existingProfessor) {
-      if (req.file) {
-        await removeFile(req.file.filename);
-      }
+      await removeFile(req.file.filename);
+
       return next(
         createError(
           "Professor with this name already exists",
@@ -80,36 +80,50 @@ export const createProfessor = [
       );
     }
 
-    const professorData = { name, faculty, email, profileImage };
+    const professorData = { name, faculty, email, image };
 
-    const professor = await createOneProfessor(professorData);
-    if (!professor) {
-      if (req.file) {
+    try {
+      // Create professor
+      const professor = await createOneProfessor(professorData);
+
+      if (!professor) {
         await removeFile(req.file.filename);
+
+        // forward error to global handler
+        return next(
+          createError("Failed to create professor", 500, errorCode.severError)
+        );
       }
-      return next(
-        createError("Failed to create professor", 500, errorCode.severError)
+
+      // Invalidate cache
+      await cacheQueue.add(
+        "invalidate-professor-cache",
+        {
+          pattern: "professors:*",
+        },
+        {
+          jobId: `invalidate-${Date.now()}`,
+          priority: 1,
+        }
+      );
+
+      //  Send success response
+      res.status(201).json({
+        success: true,
+        message: "Professor created successfully",
+        professorId: professor.id,
+      });
+    } catch (error) {
+      await removeFile(req.file.filename);
+
+      next(
+        createError(
+          error instanceof Error ? error.message : "Internal Server Error",
+          500,
+          errorCode.severError
+        )
       );
     }
-
-    // Invalidate relevant cache entries
-    await cacheQueue.add(
-      "invalidate-professor-cache",
-      {
-        pattern: "professors:*",
-      },
-      {
-        jobId: `invalidate-${Date.now()}`,
-        priority: 1,
-      }
-    );
-
-    // Controller logic here
-    res.status(201).json({
-      success: true,
-      message: "Professor created successfully",
-      professorId: professor.id,
-    });
   },
 ];
 
@@ -222,6 +236,10 @@ export const deleteProfessor = [
         priority: 1,
       }
     );
+    // Remove old image file
+    if (existingProfessor.image) {
+      await removeFile(existingProfessor.image);
+    }
 
     res.status(200).json({
       success: true,
@@ -241,7 +259,7 @@ export const getProfessorByPagination = [
     .isFloat({ min: 0 })
     .optional(),
   query("faculty", "Faculty must be string").optional().isString(),
-  query("title", "Title must be string").optional().isString(),
+  query("searchTerm", "Search term must be string").optional().isString(),
 
   // Controller
   async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -256,7 +274,7 @@ export const getProfessorByPagination = [
     const averageRate = req.query.averageRate
       ? Number(req.query.averageRate)
       : undefined;
-    const searchTerm = req.query.title as string | undefined;
+    const searchTerm = req.query.searchTerm as string | undefined;
 
     const where: any = {
       AND: [
@@ -266,9 +284,8 @@ export const getProfessorByPagination = [
         },
         searchTerm && {
           OR: [
-            { title: { contains: searchTerm } },
-            { description: { contains: searchTerm } },
-            { code: { contains: searchTerm } },
+            { name: { contains: searchTerm } },
+            { email: { contains: searchTerm } },
           ],
         },
       ].filter(Boolean),
@@ -379,6 +396,32 @@ export const updateProfessorImage = [
       success: true,
       message: "Professor image updated successfully",
       professorId: updatedProfessor.id,
+    });
+  },
+];
+
+export const getProfessorWithId = [
+  param("id", "Professor ID must be a positive integer").isInt({ gt: 0 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const professorId = parseInt(req.params.id, 10);
+    const cacheKey = `professors:${professorId}`;
+    const professor = await getOrSetCache(cacheKey, async () => {
+      return await getProfessorById(+professorId);
+    });
+
+    if (!professor) {
+      return next(createError("Professor not found.", 404, errorCode.invalid));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Professor fetched successfully",
+      data: professor,
     });
   },
 ];

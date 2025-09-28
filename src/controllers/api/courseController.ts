@@ -1,15 +1,50 @@
 import { Request, Response, NextFunction } from "express";
-import { body, validationResult, query } from "express-validator";
+import { body, validationResult, query, param } from "express-validator";
 import { createError } from "../../utils/error";
 import { errorCode } from "../../../config/errorCode";
 import { getOrSetCache } from "../../utils/cache";
-import { getCourseList } from "../../services/courseService";
+import { getCourseById, getCourseList } from "../../services/courseService";
 import { getUserById } from "../../services/authService";
 
 interface CustomRequest extends Request {
   userId?: number;
 }
 
+export const getCourseWithId = [
+  param("id", "Course ID must be a positive integer").isInt({ gt: 0 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const user = await getUserById(req.userId!);
+    if (!user) {
+      return next(
+        createError(
+          "This account has not registered!",
+          401,
+          errorCode.unauthenticated
+        )
+      );
+    }
+    const courseId = parseInt(req.params.id, 10);
+    const cacheKey = `courses:${courseId}`;
+    const course = await getOrSetCache(cacheKey, async () => {
+      return await getCourseById(+courseId);
+    });
+
+    if (!course) {
+      return next(createError("Course not found.", 404, errorCode.invalid));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Course fetched successfully",
+      data: course,
+    });
+  },
+];
 export const getCourseByPagination = [
   // Validation
   query("cursor", "Cursor must be Course ID.").isInt({ gt: 0 }).optional(),

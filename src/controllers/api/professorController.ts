@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { body, validationResult, query } from "express-validator";
+import { body, validationResult, query, param } from "express-validator";
 import { createError } from "../../utils/error";
 import { errorCode } from "../../../config/errorCode";
 import { getOrSetCache } from "../../utils/cache";
 import { getUserById } from "../../services/authService";
-import { getProfessorList } from "../../services/professorService";
+import {
+  getProfessorById,
+  getProfessorList,
+} from "../../services/professorService";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -102,6 +105,43 @@ export const getProfessorByPagination = [
       nextCursor,
       prevCursor: lastCursor || null,
       professors,
+    });
+  },
+];
+
+export const getProfessorWithId = [
+  param("id", "Professor ID must be a positive integer").isInt({ gt: 0 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const user = await getUserById(req.userId!);
+    if (!user) {
+      return next(
+        createError(
+          "This account has not registered!",
+          401,
+          errorCode.unauthenticated
+        )
+      );
+    }
+
+    const professorId = parseInt(req.params.id, 10);
+    const cacheKey = `professors:${professorId}`;
+    const professor = await getOrSetCache(cacheKey, async () => {
+      return await getProfessorById(+professorId);
+    });
+
+    if (!professor) {
+      return next(createError("Professor not found.", 404, errorCode.invalid));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Professor fetched successfully",
+      data: professor,
     });
   },
 ];

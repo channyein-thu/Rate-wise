@@ -1,4 +1,5 @@
 import { PrismaClient } from "../../generated/prisma";
+import { prismaExtend } from "./extendPrisma";
 
 const prisma = new PrismaClient();
 
@@ -19,8 +20,26 @@ export const getProfessorList = async (options: any) => {
 };
 
 export const getProfessorById = async (id: number) => {
-  return prisma.professor.findUnique({
+  return prismaExtend.professor.findUnique({
     where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      faculty: true,
+      image: true,
+      totalReviews: true,
+      averageRate: true,
+      updatedAt: true,
+      reviews: {
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          updatedAt: true,
+        },
+      },
+    },
   });
 };
 

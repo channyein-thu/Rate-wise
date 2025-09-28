@@ -21,17 +21,17 @@ interface CustomRequest extends Request {
 }
 
 export const getCourseWithId = [
-  param("courseId", "Course ID must be a positive integer").isInt({ gt: 0 }),
+  param("id", "Course ID must be a positive integer").isInt({ gt: 0 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
 
-    const courseId = parseInt(req.params.courseId, 10);
+    const courseId = parseInt(req.params.id, 10);
     const cacheKey = `courses:${courseId}`;
     const course = await getOrSetCache(cacheKey, async () => {
-      return await getCourseById(courseId);
+      return await getCourseById(+courseId);
     });
 
     if (!course) {

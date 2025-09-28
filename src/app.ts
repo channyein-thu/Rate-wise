@@ -37,6 +37,7 @@ app
   .use(compression())
   .use(limiter);
 
+app.use(express.static("uploads/images"));
 app.use(routes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

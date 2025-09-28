@@ -12,6 +12,7 @@ import {
   createProfessor,
   deleteProfessor,
   getProfessorByPagination,
+  getProfessorWithId,
   updateProfessor,
   updateProfessorImage,
 } from "../../../controllers/admin/professorController";
@@ -23,6 +24,7 @@ router.get("/courses", getCourseByPagination);
 router.patch("/courses", updateCourse);
 router.delete("/courses", deleteCourse);
 
+router.get("/professors/:id", getProfessorWithId);
 router.post("/professors", upload.single("image"), createProfessor);
 router.get("/professors", getProfessorByPagination);
 router.patch("/professors", updateProfessor);
