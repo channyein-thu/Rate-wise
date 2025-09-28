@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { body, validationResult, query } from "express-validator";
+import e, { Request, Response, NextFunction } from "express";
+import { body, validationResult, query, param } from "express-validator";
 import { createError } from "../../utils/error";
 import { errorCode } from "../../../config/errorCode";
 
@@ -19,6 +19,32 @@ interface CustomRequest extends Request {
   userId?: number;
   user?: any;
 }
+
+export const getCourseWithId = [
+  param("courseId", "Course ID must be a positive integer").isInt({ gt: 0 }),
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const errors = validationResult(req).array({ onlyFirstError: true });
+    if (errors.length > 0) {
+      return next(createError(errors[0].msg, 400, errorCode.invalid));
+    }
+
+    const courseId = parseInt(req.params.courseId, 10);
+    const cacheKey = `courses:${courseId}`;
+    const course = await getOrSetCache(cacheKey, async () => {
+      return await getCourseById(courseId);
+    });
+
+    if (!course) {
+      return next(createError("Course not found.", 404, errorCode.invalid));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Course fetched successfully",
+      data: course,
+    });
+  },
+];
 
 export const createCourse = [
   body("title", "Course title is required").trim().notEmpty().escape(),
@@ -142,6 +168,7 @@ export const getCourseByPagination = [
         description: true,
         credits: true,
         faculty: true,
+        totalReviews: true,
         averageRate: true,
       },
       orderBy: {
@@ -199,7 +226,7 @@ export const updateCourse = [
 
     const { courseId, title, code, credits, description, faculty } = req.body;
 
-    const existingCourse = await getCourseById(courseId);
+    const existingCourse = await getCourseById(+courseId);
     if (!existingCourse) {
       return next(createError("Course not found.", 404, errorCode.invalid));
     }
@@ -225,7 +252,7 @@ export const updateCourse = [
       updateData.title = title;
     }
 
-    const updatedCourse = await updateOneCourse(courseId, updateData);
+    const updatedCourse = await updateOneCourse(existingCourse.id, updateData);
     if (!updatedCourse) {
       return next(
         createError("Failed to update course.", 500, errorCode.severError)
@@ -262,12 +289,12 @@ export const deleteCourse = [
 
     const { courseId } = req.body;
 
-    const existingCourse = await getCourseById(courseId);
+    const existingCourse = await getCourseById(+courseId);
     if (!existingCourse) {
       return next(createError("Course not found.", 404, errorCode.invalid));
     }
 
-    const deletedCourse = await deleteOneCourse(courseId);
+    const deletedCourse = await deleteOneCourse(+courseId);
     if (!deletedCourse) {
       return next(
         createError("Failed to delete course.", 500, errorCode.severError)

@@ -11,4 +11,6 @@ export const errorCode = {
   unauthorised: "Error_Unauthorised",
   maintenance: "Error_Maintenance",
   severError: "Error_ServerError",
+  notFound: "Error_NotFound",
+  duplicate: "Error_Duplicate",
 };

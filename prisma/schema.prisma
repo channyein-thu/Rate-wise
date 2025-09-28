@@ -70,28 +70,30 @@ model User {
 }
 
 model Professor {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique @db.VarChar(255)
-  title       String   @db.Text
-  faculty     Faculty
-  email       String   @unique @db.VarChar(52)
-  averageRate Float    @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String   @unique @db.VarChar(255)
+  image        String   @db.VarChar(255)
+  faculty      Faculty
+  email        String   @unique @db.VarChar(52)
+  totalReviews Int      @default(0)
+  averageRate  Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   reviews Review[]
 }
 
 model Course {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique @db.VarChar(255)
-  code        String   @db.VarChar(52)
-  credits     Int      @db.TinyInt
-  description String   @db.Text
-  faculty     Faculty
-  averageRate Float    @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  title        String   @unique @db.VarChar(255)
+  code         String   @db.VarChar(52)
+  credits      Int      @db.TinyInt
+  description  String   @db.Text
+  faculty      Faculty
+  totalReviews Int      @default(0)
+  averageRate  Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   reviews Review[]
 }
