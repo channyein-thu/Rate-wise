@@ -90,7 +90,7 @@ export const createCourse = [
     const newCourse = await createOneCourse(CourseData);
     if (!newCourse) {
       return next(
-        createError("Failed to create course.", 500, errorCode.severError)
+        createError("Failed to create course.", 500, errorCode.serverError)
       );
     }
 
@@ -255,7 +255,7 @@ export const updateCourse = [
     const updatedCourse = await updateOneCourse(existingCourse.id, updateData);
     if (!updatedCourse) {
       return next(
-        createError("Failed to update course.", 500, errorCode.severError)
+        createError("Failed to update course.", 500, errorCode.serverError)
       );
     }
 
@@ -297,7 +297,7 @@ export const deleteCourse = [
     const deletedCourse = await deleteOneCourse(+courseId);
     if (!deletedCourse) {
       return next(
-        createError("Failed to delete course.", 500, errorCode.severError)
+        createError("Failed to delete course.", 500, errorCode.serverError)
       );
     }
 

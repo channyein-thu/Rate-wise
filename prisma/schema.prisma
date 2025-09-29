@@ -58,7 +58,7 @@ model User {
   email           String    @unique @db.VarChar(52)
   password        String
   faculty         Faculty
-  year            String    @unique @db.VarChar(25)
+  year            String    @db.VarChar(25)
   role            Role      @default(USER)
   status          Status    @default(ACTIVE)
   lastLogin       DateTime?
@@ -112,4 +112,7 @@ model Review {
   course    Course?    @relation(fields: [courseId], references: [id])
   professor Professor? @relation(fields: [professorId], references: [id])
   author    User       @relation(fields: [authorId], references: [id])
+
+  @@unique([authorId, courseId])
+  @@unique([authorId, professorId])
 }

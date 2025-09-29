@@ -10,7 +10,7 @@ export const errorCode = {
   accountFreeze: "Error_AccountFreeze",
   unauthorised: "Error_Unauthorised",
   maintenance: "Error_Maintenance",
-  severError: "Error_ServerError",
+  serverError: "Error_ServerError",
   notFound: "Error_NotFound",
   duplicate: "Error_Duplicate",
 };

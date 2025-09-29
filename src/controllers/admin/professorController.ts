@@ -91,7 +91,7 @@ export const createProfessor = [
 
         // forward error to global handler
         return next(
-          createError("Failed to create professor", 500, errorCode.severError)
+          createError("Failed to create professor", 500, errorCode.serverError)
         );
       }
 
@@ -120,7 +120,7 @@ export const createProfessor = [
         createError(
           error instanceof Error ? error.message : "Internal Server Error",
           500,
-          errorCode.severError
+          errorCode.serverError
         )
       );
     }
@@ -178,7 +178,7 @@ export const updateProfessor = [
     );
     if (!updatedProfessor) {
       return next(
-        createError("Failed to update professor", 500, errorCode.severError)
+        createError("Failed to update professor", 500, errorCode.serverError)
       );
     }
 
@@ -221,7 +221,7 @@ export const deleteProfessor = [
     const deletedProfessor = await deleteOneProfessor(professorId);
     if (!deletedProfessor) {
       return next(
-        createError("Failed to delete professor.", 500, errorCode.severError)
+        createError("Failed to delete professor.", 500, errorCode.serverError)
       );
     }
 
@@ -371,7 +371,7 @@ export const updateProfessorImage = [
         await removeFile(req.file.filename);
       }
       return next(
-        createError("Failed to update professor", 500, errorCode.severError)
+        createError("Failed to update professor", 500, errorCode.serverError)
       );
     }
 

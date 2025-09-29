@@ -1,4 +1,3 @@
-import { create } from "domain";
 import { PrismaClient } from "../../generated/prisma";
 import { prismaExtend } from "./extendPrisma";
 

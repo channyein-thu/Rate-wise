@@ -13,7 +13,7 @@ export const checkingCreatedModel = (model: any) => {
   if (!model) {
     const error: any = new Error("Cannot create model. Please try again.");
     error.status = 500;
-    error.code = errorCode.severError;
+    error.code = errorCode.serverError;
     throw error;
   }
 };
