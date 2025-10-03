@@ -25,5 +25,10 @@ dist-ssr
 *.sw?
 /generated/prisma
 
-uploads/images/*
+# Ignore everything inside prisma/migrations but keep the folder
 prisma/migrations/*
+!prisma/migrations/.gitkeep
+
+# Ignore everything inside uploads/images but keep the folder
+uploads/images/*
+!uploads/images/.gitkeep
