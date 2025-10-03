@@ -10,8 +10,25 @@ export const getProfessorByName = async (name: string) => {
 };
 
 export const createOneProfessor = async (data: any) => {
+  const professorData: any = {
+    name: data.name,
+    faculty: data.faculty,
+    email: data.email,
+    image: data.image,
+  };
+
+  if (data.education && data.education.length > 0) {
+    professorData.education = {
+      connectOrCreate: data.education.map((degree: string) => ({
+        where: { degree },
+        create: { degree },
+      })),
+    };
+  }
+
   return prisma.professor.create({
-    data,
+    data: professorData,
+    include: { education: true },
   });
 };
 
@@ -28,6 +45,9 @@ export const getProfessorById = async (id: number) => {
       email: true,
       faculty: true,
       image: true,
+      education: {
+        select: { degree: true },
+      },
       totalReviews: true,
       averageRate: true,
       updatedAt: true,
@@ -44,9 +64,24 @@ export const getProfessorById = async (id: number) => {
 };
 
 export const updateOneProfessor = async (id: number, data: any) => {
+  const { education, ...professorFields } = data;
+
   return prisma.professor.update({
     where: { id },
-    data,
+    data: {
+      ...professorFields,
+      ...(education &&
+        education.length > 0 && {
+          education: {
+            set: [], // clear existing
+            connectOrCreate: education.map((degree: string) => ({
+              where: { degree },
+              create: { degree },
+            })),
+          },
+        }),
+    },
+    include: { education: true },
   });
 };
 

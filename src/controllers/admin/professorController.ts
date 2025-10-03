@@ -34,6 +34,32 @@ const removeFile = async (originalFile: string) => {
   }
 };
 
+const educationSanitizer = (value: any) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.map((e: string) => e.trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string" && value.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.map((e: string) => e.trim()).filter(Boolean);
+      }
+    } catch {}
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((e: string) => e.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
 interface CustomRequest extends Request {
   userId?: number;
   user?: any;
@@ -49,6 +75,10 @@ export const createProfessor = [
     .notEmpty()
     .isEmail()
     .withMessage("Invalid email format"),
+  body("education")
+    .optional({ nullable: true })
+    .customSanitizer(educationSanitizer),
+
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
@@ -58,7 +88,7 @@ export const createProfessor = [
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
 
-    const { name, faculty, email } = req.body;
+    const { name, faculty, email, education } = req.body;
     if (!req.file) {
       return next(
         createError("Profile image is required", 400, errorCode.invalid)
@@ -80,7 +110,7 @@ export const createProfessor = [
       );
     }
 
-    const professorData = { name, faculty, email, image };
+    const professorData = { name, faculty, email, image, education };
 
     try {
       // Create professor
@@ -140,13 +170,16 @@ export const updateProfessor = [
     .notEmpty()
     .isEmail()
     .withMessage("Invalid email format"),
+  body("education")
+    .optional({ nullable: true })
+    .customSanitizer(educationSanitizer),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     const errors = validationResult(req).array({ onlyFirstError: true });
     if (errors.length > 0) {
       return next(createError(errors[0].msg, 400, errorCode.invalid));
     }
 
-    const { professorId, name, faculty, email } = req.body;
+    const { professorId, name, faculty, email, education } = req.body;
 
     const existingProfessor = await getProfessorById(+professorId);
     if (!existingProfessor) {
@@ -171,35 +204,48 @@ export const updateProfessor = [
       }
       newprofessorData.name = name;
     }
-
-    const updatedProfessor = await updateOneProfessor(
-      existingProfessor.id,
-      newprofessorData
-    );
-    if (!updatedProfessor) {
-      return next(
-        createError("Failed to update professor", 500, errorCode.serverError)
-      );
+    if (education && education.length > 0) {
+      newprofessorData.education = education;
     }
 
-    // Invalidate relevant cache entries
-    await cacheQueue.add(
-      "invalidate-professor-cache",
-      {
-        pattern: "professors:*",
-      },
-      {
-        jobId: `invalidate-${Date.now()}`,
-        priority: 1,
+    try {
+      const updatedProfessor = await updateOneProfessor(
+        existingProfessor.id,
+        newprofessorData
+      );
+      if (!updatedProfessor) {
+        return next(
+          createError("Failed to update professor", 500, errorCode.serverError)
+        );
       }
-    );
 
-    // Controller logic here
-    res.status(201).json({
-      success: true,
-      message: "Professor updated successfully",
-      professorId: updatedProfessor.id,
-    });
+      // Invalidate relevant cache entries
+      await cacheQueue.add(
+        "invalidate-professor-cache",
+        {
+          pattern: "professors:*",
+        },
+        {
+          jobId: `invalidate-${Date.now()}`,
+          priority: 1,
+        }
+      );
+
+      // Controller logic here
+      res.status(200).json({
+        success: true,
+        message: "Professor updated successfully",
+        professorId: updatedProfessor.id,
+      });
+    } catch (error) {
+      next(
+        createError(
+          error instanceof Error ? error.message : "Internal Server Error",
+          500,
+          errorCode.serverError
+        )
+      );
+    }
   },
 ];
 
@@ -301,6 +347,9 @@ export const getProfessorByPagination = [
         name: true,
         email: true,
         faculty: true,
+        education: {
+          select: { degree: true },
+        },
         image: true,
         totalReviews: true,
         averageRate: true,
@@ -362,10 +411,10 @@ export const updateProfessorImage = [
       return next(createError("Professor not found", 404, errorCode.notFound));
     }
 
-    const updatedProfessor = await updateOneProfessor(
-      existingProfessor.id,
-      image
-    );
+    const updatedProfessor = await updateOneProfessor(existingProfessor.id, {
+      image,
+    });
+
     if (!updatedProfessor) {
       if (req.file) {
         await removeFile(req.file.filename);

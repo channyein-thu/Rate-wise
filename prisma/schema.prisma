@@ -80,7 +80,14 @@ model Professor {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  reviews Review[]
+  education Education[]
+  reviews   Review[]
+}
+
+model Education {
+  id        Int         @id @default(autoincrement())
+  degree    String      @unique @db.VarChar(255)
+  professor Professor[]
 }
 
 model Course {

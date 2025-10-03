@@ -24,3 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 /generated/prisma
+
+uploads/images/*
+prisma/migrations/*
