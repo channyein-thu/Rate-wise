@@ -27,7 +27,7 @@ enum Status {
 
 enum Faculty {
   School_of_Agro_Industry
-  school_of_Cosmetic_Science
+  School_of_Cosmetic_Science
   School_of_Health_Science
   School_of_Applied_Digital_Technology
   School_of_Integrative_Medicine
