@@ -32,3 +32,5 @@ prisma/migrations/*
 # Ignore everything inside uploads/images but keep the folder
 uploads/images/*
 !uploads/images/.gitkeep
+
+prisma
