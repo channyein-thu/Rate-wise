@@ -440,6 +440,7 @@ export const login = [
       .json({
         message: "Successfully Logged In.",
         userId: user!.id,
+        userRole: user!.role,
       });
   },
 ];
