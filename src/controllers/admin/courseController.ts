@@ -167,6 +167,7 @@ export const getCourseByPagination = [
         title: true,
         description: true,
         credits: true,
+        code: true,
         faculty: true,
         totalReviews: true,
         averageRate: true,

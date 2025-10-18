@@ -11,6 +11,7 @@ import path from "path";
 import {
   createOneProfessor,
   deleteOneProfessor,
+  getProfessorByEmail,
   getProfessorById,
   getProfessorByName,
   getProfessorList,
@@ -189,7 +190,6 @@ export const updateProfessor = [
     let newprofessorData: any = {};
 
     newprofessorData.faculty = faculty as Faculty;
-    newprofessorData.email = email;
 
     if (name !== existingProfessor.name) {
       const nameExists = await getProfessorByName(name);
@@ -203,6 +203,20 @@ export const updateProfessor = [
         );
       }
       newprofessorData.name = name;
+    }
+
+    if (email !== existingProfessor.email) {
+      const emailExists = await getProfessorByEmail(email);
+      if (emailExists) {
+        return next(
+          createError(
+            "Professor with this email already exists",
+            400,
+            errorCode.duplicate
+          )
+        );
+      }
+      newprofessorData.email = email;
     }
     if (education && education.length > 0) {
       newprofessorData.education = education;

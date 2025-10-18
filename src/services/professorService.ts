@@ -90,3 +90,9 @@ export const deleteOneProfessor = async (id: number) => {
     where: { id },
   });
 };
+
+export const getProfessorByEmail = async (email: string) => {
+  return prisma.professor.findUnique({
+    where: { email },
+  });
+};

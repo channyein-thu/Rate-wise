@@ -10,6 +10,23 @@ interface CustomRequest extends Request {
   userId?: number;
 }
 
+export const getTotalCourses = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const cacheKey = "courses:total";
+  const totalCourses = await getOrSetCache(cacheKey, async () => {
+    return await getCourseList({ select: { id: true } });
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "total courses fetched successfully",
+    total: totalCourses.length,
+  });
+};
+
 export const getCourseWithId = [
   param("id", "Course ID must be a positive integer").isInt({ gt: 0 }),
   async (req: CustomRequest, res: Response, next: NextFunction) => {
