@@ -5,26 +5,46 @@ import { errorCode } from "../../../config/errorCode";
 import { getOrSetCache } from "../../utils/cache";
 import { getCourseById, getCourseList } from "../../services/courseService";
 import { getUserById } from "../../services/authService";
+import { getProfessorList } from "../../services/professorService";
+import { getReviewList } from "../../services/reviewService";
 
 interface CustomRequest extends Request {
   userId?: number;
 }
 
-export const getTotalCourses = async (
+export const getTotals = async (
   req: CustomRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const cacheKey = "courses:total";
-  const totalCourses = await getOrSetCache(cacheKey, async () => {
-    return await getCourseList({ select: { id: true } });
-  });
+  try {
+    const cacheKey1 = "courses:total";
+    const totalCourses = await getOrSetCache(cacheKey1, async () => {
+      return await getCourseList({ select: { id: true } });
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "total courses fetched successfully",
-    total: totalCourses.length,
-  });
+    const cacheKey2 = "professors:total";
+    const totalProfessors = await getOrSetCache(cacheKey2, async () => {
+      return await getProfessorList({ select: { id: true } });
+    });
+
+    const cacheKey3 = "reviews:total";
+    const totalReviews = await getOrSetCache(cacheKey3, async () => {
+      return await getReviewList({ select: { id: true } });
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "totals fetched successfully",
+      courses: totalCourses.length,
+      professors: totalProfessors.length,
+      reviews: totalReviews.length,
+    });
+  } catch (error) {
+    return next(
+      createError("Failed to fetch totals.", 500, errorCode.serverError)
+    );
+  }
 };
 
 export const getCourseWithId = [

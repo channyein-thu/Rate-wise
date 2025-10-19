@@ -2,13 +2,12 @@ import express from "express";
 import {
   getCourseByPagination,
   getCourseWithId,
-  getTotalCourses,
+  getTotals,
 } from "../../../controllers/api/courseController";
 import { auth } from "../../../middlewares/auth";
 import {
   getProfessorByPagination,
   getProfessorWithId,
-  getTotalProfessors,
 } from "../../../controllers/api/professorController";
 import {
   createReview,
@@ -17,7 +16,6 @@ import {
   updateReview,
   getUserCourseReviews,
   getUserProfessorReviews,
-  getTotalReviews,
 } from "../../../controllers/api/reviewController";
 
 const router = express.Router();
@@ -36,8 +34,6 @@ router.get("/reviews", auth, getAllUserReviews);
 router.get("/reviews/courses", auth, getUserCourseReviews);
 router.get("/reviews/professors", auth, getUserProfessorReviews);
 
-router.get("/total-professors", auth, getTotalProfessors);
-router.get("/total-courses", auth, getTotalCourses);
-router.get("/total-reviews", auth, getTotalReviews);
+router.get("/totals", auth, getTotals);
 
 export default router;
