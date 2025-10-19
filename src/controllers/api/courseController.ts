@@ -3,10 +3,15 @@ import { body, validationResult, query, param } from "express-validator";
 import { createError } from "../../utils/error";
 import { errorCode } from "../../../config/errorCode";
 import { getOrSetCache } from "../../utils/cache";
-import { getCourseById, getCourseList } from "../../services/courseService";
+import {
+  getCourseById,
+  getCourseList,
+  getTotalOfEverything,
+} from "../../services/courseService";
 import { getUserById } from "../../services/authService";
 import { getProfessorList } from "../../services/professorService";
 import { getReviewList } from "../../services/reviewService";
+import { get } from "http";
 
 interface CustomRequest extends Request {
   userId?: number;
@@ -18,27 +23,20 @@ export const getTotals = async (
   next: NextFunction
 ) => {
   try {
-    const cacheKey1 = "courses:total";
-    const totalCourses = await getOrSetCache(cacheKey1, async () => {
-      return await getCourseList({ select: { id: true } });
-    });
-
-    const cacheKey2 = "professors:total";
-    const totalProfessors = await getOrSetCache(cacheKey2, async () => {
-      return await getProfessorList({ select: { id: true } });
-    });
-
-    const cacheKey3 = "reviews:total";
-    const totalReviews = await getOrSetCache(cacheKey3, async () => {
-      return await getReviewList({ select: { id: true } });
-    });
+    const cacheKey = "courses:professors:reviews:total";
+    const { courses, professors, reviews } = await getOrSetCache(
+      cacheKey,
+      async () => {
+        return await getTotalOfEverything();
+      }
+    );
 
     res.status(200).json({
       success: true,
       message: "totals fetched successfully",
-      courses: totalCourses.length,
-      professors: totalProfessors.length,
-      reviews: totalReviews.length,
+      courses: courses,
+      professors: professors,
+      reviews: reviews,
     });
   } catch (error) {
     return next(

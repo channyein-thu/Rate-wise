@@ -14,23 +14,6 @@ interface CustomRequest extends Request {
   userId?: number;
 }
 
-export const getTotalProfessors = async (
-  req: CustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const cacheKey = "professors:total";
-  const totalProfessors = await getOrSetCache(cacheKey, async () => {
-    return await getProfessorList({ select: { id: true } });
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "total professors fetched successfully",
-    total: totalProfessors.length,
-  });
-};
-
 export const getProfessorByPagination = [
   // Validation
   //for pagination

@@ -58,3 +58,16 @@ export const deleteOneCourse = async (id: number) => {
     where: { id },
   });
 };
+
+export const getTotalOfEverything = async () => {
+  const [courses, professors, reviews] = await Promise.all([
+    prisma.course.count(),
+    prisma.professor.count(),
+    prisma.review.count(),
+  ]);
+  return {
+    courses,
+    professors,
+    reviews,
+  };
+};
