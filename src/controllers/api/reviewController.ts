@@ -14,11 +14,28 @@ import {
 } from "../../services/reviewService";
 import { recalcReviewStats } from "../../utils/reviewHelper";
 import cacheQueue from "../../jobs/queues/cacheQueue";
-import { get } from "http";
 
 interface CustomRequest extends Request {
   userId?: number;
 }
+
+export const getTotalReviews = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const cacheKey = "reviews:total";
+  const totalReviews = await getOrSetCache(cacheKey, async () => {
+    return await getReviewList({ select: { id: true, rating: true } });
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "total reviews fetched successfully",
+    total: totalReviews.length,
+    ratings: totalReviews.map((r: any) => r.rating),
+  });
+};
 
 export const createReview = [
   body("courseId")

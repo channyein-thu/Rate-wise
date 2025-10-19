@@ -17,6 +17,7 @@ import {
   updateReview,
   getUserCourseReviews,
   getUserProfessorReviews,
+  getTotalReviews,
 } from "../../../controllers/api/reviewController";
 
 const router = express.Router();
@@ -37,4 +38,6 @@ router.get("/reviews/professors", auth, getUserProfessorReviews);
 
 router.get("/total-professors", auth, getTotalProfessors);
 router.get("/total-courses", auth, getTotalCourses);
+router.get("/total-reviews", auth, getTotalReviews);
+
 export default router;

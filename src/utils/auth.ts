@@ -34,7 +34,7 @@ export const checkOtpRow = (otpRow: any) => {
 
 export const checkUserIfNotExist = (user: any) => {
   if (!user) {
-    const error: any = new Error("This email has not registered.");
+    const error: any = new Error("You are not authenticated.");
     error.status = 401;
     error.code = errorCode.unauthenticated;
     throw error;
