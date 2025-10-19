@@ -64,10 +64,11 @@ export const getCourseWithId = [
 ];
 export const getCourseByPagination = [
   // Validation
-  query("cursor", "Cursor must be Course ID.").isInt({ gt: 0 }).optional(),
-  query("limit", "Limit must be an integer greater than 0.")
-    .isInt({ gt: 0 })
-    .optional(),
+  //for pagination
+  // query("cursor", "Cursor must be Course ID.").isInt({ gt: 0 }).optional(),
+  // query("limit", "Limit must be an integer greater than 0.")
+  //   .isInt({ gt: 0 })
+  //   .optional(),
   query("averageRate", "averageRate must be a number")
     .isFloat({ min: 0 })
     .optional(),
@@ -92,8 +93,8 @@ export const getCourseByPagination = [
       );
     }
 
-    const lastCursor = req.query.cursor ? Number(req.query.cursor) : undefined;
-    const limit = req.query.limit ? Number(req.query.limit) : 6;
+    // const lastCursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+    // const limit = req.query.limit ? Number(req.query.limit) : 6;
     const faculty = req.query.faculty as string | undefined;
     const averageRate = req.query.averageRate
       ? Number(req.query.averageRate)
@@ -117,10 +118,10 @@ export const getCourseByPagination = [
     };
 
     const options = {
-      where,
-      take: limit + 1, // fetch one extra to check hasNextPage
-      skip: lastCursor ? 1 : 0,
-      cursor: lastCursor ? { id: lastCursor } : undefined,
+      // where,
+      // take: limit + 1, // fetch one extra to check hasNextPage
+      // skip: lastCursor ? 1 : 0,
+      // cursor: lastCursor ? { id: lastCursor } : undefined,
       select: {
         id: true,
         title: true,
@@ -141,19 +142,19 @@ export const getCourseByPagination = [
       return await getCourseList(options);
     });
 
-    const hasNextPage = courses.length > limit;
-    if (hasNextPage) {
-      courses.pop(); // remove extra record
-    }
+    // const hasNextPage = courses.length > limit;
+    // if (hasNextPage) {
+    //   courses.pop(); // remove extra record
+    // }
 
     const nextCursor =
       courses.length > 0 ? courses[courses.length - 1].id : null;
 
     res.status(200).json({
       message: "Get All infinite courses",
-      hasNextPage,
-      nextCursor,
-      prevCursor: lastCursor || null,
+      // hasNextPage,
+      // nextCursor,
+      // prevCursor: lastCursor || null,
       courses,
     });
   },

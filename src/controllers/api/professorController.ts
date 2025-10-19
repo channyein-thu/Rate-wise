@@ -33,10 +33,11 @@ export const getTotalProfessors = async (
 
 export const getProfessorByPagination = [
   // Validation
-  query("cursor", "Cursor must be Professor ID.").isInt({ gt: 0 }).optional(),
-  query("limit", "Limit must be an integer greater than 0.")
-    .isInt({ gt: 0 })
-    .optional(),
+  //for pagination
+  // query("cursor", "Cursor must be Professor ID.").isInt({ gt: 0 }).optional(),
+  // query("limit", "Limit must be an integer greater than 0.")
+  //   .isInt({ gt: 0 })
+  //   .optional(),
   query("averageRate", "averageRate must be a number")
     .isFloat({ min: 0 })
     .optional(),
@@ -61,8 +62,9 @@ export const getProfessorByPagination = [
       );
     }
 
-    const lastCursor = req.query.cursor ? Number(req.query.cursor) : undefined;
-    const limit = req.query.limit ? Number(req.query.limit) : 6;
+    // const lastCursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+    // const limit = req.query.limit ? Number(req.query.limit) : 6;
+
     const faculty = req.query.faculty as string | undefined;
     const averageRate = req.query.averageRate
       ? Number(req.query.averageRate)
@@ -86,10 +88,10 @@ export const getProfessorByPagination = [
     };
 
     const options = {
-      where,
-      take: limit + 1, // fetch one extra to check hasNextPage
-      skip: lastCursor ? 1 : 0,
-      cursor: lastCursor ? { id: lastCursor } : undefined,
+      // where,
+      // take: limit + 1, // fetch one extra to check hasNextPage
+      // skip: lastCursor ? 1 : 0,
+      // cursor: lastCursor ? { id: lastCursor } : undefined,
       select: {
         id: true,
         name: true,
@@ -110,19 +112,19 @@ export const getProfessorByPagination = [
       return await getProfessorList(options);
     });
 
-    const hasNextPage = professors.length > limit;
-    if (hasNextPage) {
-      professors.pop(); // remove extra record
-    }
+    // const hasNextPage = professors.length > limit;
+    // if (hasNextPage) {
+    //   professors.pop(); // remove extra record
+    // }
 
-    const nextCursor =
-      professors.length > 0 ? professors[professors.length - 1].id : null;
+    // const nextCursor =
+    //   professors.length > 0 ? professors[professors.length - 1].id : null;
 
     res.status(200).json({
       message: "Get All infinite professors",
-      hasNextPage,
-      nextCursor,
-      prevCursor: lastCursor || null,
+      // hasNextPage,
+      // nextCursor,
+      // prevCursor: lastCursor || null,
       professors,
     });
   },
