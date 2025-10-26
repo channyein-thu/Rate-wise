@@ -19,7 +19,7 @@ export const updateOneReview = async (id: number, data: any) => {
 export const getOneReviewById = async (id: number) => {
   return prisma.review.findUnique({
     where: { id },
-    select: { courseId: true, professorId: true },
+    select: { courseId: true, professorId: true, authorId: true },
   });
 };
 

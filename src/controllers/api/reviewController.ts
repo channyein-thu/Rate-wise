@@ -155,8 +155,18 @@ export const updateReview = [
     try {
       const { reviewId, rating, comment } = req.body;
       const existingReview = await getOneReviewById(+reviewId);
+      console.log("Existing Review:", existingReview);
       if (!existingReview) {
         return next(createError("Review not found", 404, errorCode.notFound));
+      }
+      if (existingReview.authorId !== user.id) {
+        return next(
+          createError(
+            "You are not authorized to update this review",
+            403,
+            errorCode.invalid
+          )
+        );
       }
 
       const data = { rating, comment };
