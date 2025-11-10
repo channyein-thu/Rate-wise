@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { redis } from "../../../config/redisClient";
+import { redis } from "../../config/redisClient";
 
 export const caheWorker = new Worker(
   "cache-invalidation",

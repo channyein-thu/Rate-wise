@@ -1,4 +1,4 @@
-import { redis } from "../../config/redisClient";
+import { redis } from "../config/redisClient";
 
 export const getOrSetCache = async (key: any, cb: any) => {
   try {

@@ -5,12 +5,13 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -94,7 +95,7 @@ model Course {
   id           Int      @id @default(autoincrement())
   title        String   @unique @db.VarChar(255)
   code         String   @db.VarChar(52)
-  credits      Int      @db.TinyInt
+  credits      Int      @db.SmallInt
   description  String   @db.Text
   faculty      Faculty
   totalReviews Int      @default(0)
@@ -107,7 +108,7 @@ model Course {
 
 model Review {
   id          Int    @id @default(autoincrement())
-  rating      Int    @db.TinyInt
+  rating      Int    @db.SmallInt
   comment     String @db.Text
   courseId    Int? // optional (nullable)
   professorId Int? // optional (nullable)

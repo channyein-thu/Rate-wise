@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const courseController_1 = require("../../../controllers/admin/courseController");
+const upload_1 = __importDefault(require("../../../middlewares/upload"));
+const professorController_1 = require("../../../controllers/admin/professorController");
+const router = express_1.default.Router();
+router.get("/courses/:id", courseController_1.getCourseWithId);
+router.post("/courses", courseController_1.createCourse);
+router.get("/courses", courseController_1.getCourseByPagination);
+router.patch("/courses", courseController_1.updateCourse);
+router.delete("/courses", courseController_1.deleteCourse);
+router.get("/professors/:id", professorController_1.getProfessorWithId);
+router.post("/professors", upload_1.default.single("image"), professorController_1.createProfessor);
+router.get("/professors", professorController_1.getProfessorByPagination);
+router.patch("/professors", professorController_1.updateProfessor);
+router.patch("/professors/image", upload_1.default.single("image"), professorController_1.updateProfessorImage);
+router.delete("/professors", professorController_1.deleteProfessor);
+exports.default = router;

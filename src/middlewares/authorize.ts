@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { get } from "http";
 import { getUserById } from "../services/authService";
 import { createError } from "../utils/error";
-import { errorCode } from "../../config/errorCode";
+import { errorCode } from "../config/errorCode";
 
 interface CustomRequest extends Request {
   userId?: number;

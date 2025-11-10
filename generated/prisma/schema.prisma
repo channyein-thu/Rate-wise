@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  FREEZE
+}
+
+enum Faculty {
+  School_of_Agro_Industry
+  School_of_Cosmetic_Science
+  School_of_Health_Science
+  School_of_Applied_Digital_Technology
+  School_of_Integrative_Medicine
+  School_of_Law
+  School_of_Liberal_Arts
+  School_of_Management
+  School_of_Nursing
+  School_of_Science
+  School_of_Sinology
+  School_of_Social_Innovation
+  School_of_Dentistry
+}
+
+model Otp {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique @db.VarChar(52)
+  otp           String
+  rememberToken String
+  verifyToken   String?
+  count         Int      @default(0) @db.SmallInt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  error         Int      @default(0) @db.SmallInt
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique @db.VarChar(52)
+  password        String
+  faculty         Faculty
+  year            String    @db.VarChar(25)
+  role            Role      @default(USER)
+  status          Status    @default(ACTIVE)
+  lastLogin       DateTime?
+  errorLoginCount Int       @default(0) @db.SmallInt
+  randToken       String    @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reviews         Review[]
+}
+
+model Professor {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique @db.VarChar(255)
+  image        String   @db.VarChar(255)
+  faculty      Faculty
+  email        String   @unique @db.VarChar(52)
+  totalReviews Int      @default(0)
+  averageRate  Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  education Education[]
+  reviews   Review[]
+}
+
+model Education {
+  id        Int         @id @default(autoincrement())
+  degree    String      @unique @db.VarChar(255)
+  professor Professor[]
+}
+
+model Course {
+  id           Int      @id @default(autoincrement())
+  title        String   @unique @db.VarChar(255)
+  code         String   @db.VarChar(52)
+  credits      Int      @db.SmallInt
+  description  String   @db.Text
+  faculty      Faculty
+  totalReviews Int      @default(0)
+  averageRate  Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reviews Review[]
+}
+
+model Review {
+  id          Int    @id @default(autoincrement())
+  rating      Int    @db.SmallInt
+  comment     String @db.Text
+  courseId    Int? // optional (nullable)
+  professorId Int? // optional (nullable)
+  authorId    Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course    Course?    @relation(fields: [courseId], references: [id])
+  professor Professor? @relation(fields: [professorId], references: [id])
+  author    User       @relation(fields: [authorId], references: [id])
+
+  @@unique([authorId, courseId])
+  @@unique([authorId, professorId])
+}

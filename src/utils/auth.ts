@@ -1,4 +1,4 @@
-import { errorCode } from "../../config/errorCode";
+import { errorCode } from "../config/errorCode";
 
 export const checkUserExist = (user: any) => {
   if (user) {

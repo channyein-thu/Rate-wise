@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { createError } from "../utils/error";
 import jwt from "jsonwebtoken";
-import { errorCode } from "../../config/errorCode";
+import { errorCode } from "../config/errorCode";
 import { get } from "http";
 import { getUserById, updateUser } from "../services/authService";
 

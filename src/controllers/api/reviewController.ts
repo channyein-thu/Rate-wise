@@ -2,7 +2,7 @@ import e, { Request, Response, NextFunction } from "express";
 import { body, validationResult, query, param } from "express-validator";
 
 import { createError } from "../../utils/error";
-import { errorCode } from "../../../config/errorCode";
+import { errorCode } from "../../config/errorCode";
 import { getOrSetCache } from "../../utils/cache";
 import { getUserById } from "../../services/authService";
 import {

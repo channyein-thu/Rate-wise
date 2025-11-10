@@ -22,7 +22,7 @@ import {
   getUserById,
 } from "../services/authService";
 import { createError } from "../utils/error";
-import { errorCode } from "../../config/errorCode";
+import { errorCode } from "../config/errorCode";
 import { generateOTP, generateToken } from "../utils/generate";
 import { sendOTP } from "../utils/sendEmail";
 import { checkingCreatedModel } from "../utils/check";

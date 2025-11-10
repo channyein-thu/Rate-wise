@@ -1,0 +1,23 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const courseController_1 = require("../../../controllers/api/courseController");
+const auth_1 = require("../../../middlewares/auth");
+const professorController_1 = require("../../../controllers/api/professorController");
+const reviewController_1 = require("../../../controllers/api/reviewController");
+const router = express_1.default.Router();
+router.get("/courses/:id", auth_1.auth, courseController_1.getCourseWithId);
+router.get("/courses", auth_1.auth, courseController_1.getCourseByPagination);
+router.get("/professors/:id", auth_1.auth, professorController_1.getProfessorWithId);
+router.get("/professors", auth_1.auth, professorController_1.getProfessorByPagination);
+router.post("/reviews", auth_1.auth, reviewController_1.createReview);
+router.patch("/reviews", auth_1.auth, reviewController_1.updateReview);
+router.delete("/reviews", auth_1.auth, reviewController_1.deleteReview);
+router.get("/reviews", auth_1.auth, reviewController_1.getAllUserReviews);
+router.get("/reviews/courses", auth_1.auth, reviewController_1.getUserCourseReviews);
+router.get("/reviews/professors", auth_1.auth, reviewController_1.getUserProfessorReviews);
+router.get("/totals", auth_1.auth, courseController_1.getTotals);
+exports.default = router;

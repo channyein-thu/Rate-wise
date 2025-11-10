@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
 
-import { redis } from "../../../config/redisClient";
+import { redis } from "../../config/redisClient";
 
 const cacheQueue = new Queue("cache-invalidation", {
   connection: redis,

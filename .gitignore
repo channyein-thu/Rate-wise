@@ -7,13 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node
 node_modules
-dist
-dist-ssr
 *.local
+
+# Environment
 .env
 
-# Editor directories and files
+# Editor and system
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,14 +24,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/generated/prisma
 
-# Ignore everything inside prisma/migrations but keep the folder
+# Prisma
+/generated/prisma
+# Keep prisma schema and migrations
+!prisma/
 prisma/migrations/*
 !prisma/migrations/.gitkeep
 
-# Ignore everything inside uploads/images but keep the folder
+# Uploads (keep folder, ignore contents)
 uploads/images/*
 !uploads/images/.gitkeep
 
-prisma
+# Build output (keep dist!)
+# DO NOT IGNORE dist — we need it for Docker
+# dist/
