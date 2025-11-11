@@ -26,8 +26,8 @@ It provides reliable feedback to help students make smarter registration choices
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/thiri-kyaw-khaing/course-professor-review-hub.git
-cd ratewise
+git clone https://github.com/channyein-thu/Rate-wise.git
+cd Rate-wise
 
 # 2. Install dependencies
 npm install
