@@ -65,7 +65,7 @@ npm run build
 * Authentication (student/admin login)
 * Admin dashboard for course management
 * Caching improvements (Redis)
-* Deployment on AWS or Vercel
+* Deployment on Railway
 
 ---
 
