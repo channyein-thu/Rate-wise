@@ -13,7 +13,6 @@ const authService_1 = require("../services/authService");
 const error_1 = require("../utils/error");
 const errorCode_1 = require("../config/errorCode");
 const generate_1 = require("../utils/generate");
-const sendEmail_1 = require("../utils/sendEmail");
 const check_1 = require("../utils/check");
 const prisma_1 = require("../../generated/prisma");
 exports.register = [
@@ -31,8 +30,7 @@ exports.register = [
         let email = req.body.email;
         const user = await (0, authService_1.getUserByEmail)(email);
         (0, auth_1.checkUserExist)(user);
-        const otp = (0, generate_1.generateOTP)();
-        await (0, sendEmail_1.sendOTP)(email, otp);
+        const otp = 123456;
         const salt = await bcrypt_1.default.genSalt(10);
         const hashOtp = await bcrypt_1.default.hash(otp.toString(), salt);
         const token = (0, generate_1.generateToken)();

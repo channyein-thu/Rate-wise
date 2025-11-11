@@ -14,12 +14,24 @@ const rateLimiter_1 = require("./middlewares/rateLimiter");
 const v1_1 = __importDefault(require("./routes/v1"));
 const path_1 = __importDefault(require("path"));
 exports.app = (0, express_1.default)();
-const whitelist = ["http://localhost:5173"];
-const corsOptions = {
-    origin: whitelist,
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://course-professor-review-hub-mfu.vercel.app",
+    "https://triumphant-caring-production-fd3c.up.railway.app",
+];
+exports.app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            console.warn("❌ Blocked by CORS:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
-};
-exports.app.use((0, cors_1.default)(corsOptions));
+}));
+exports.app.options(/.*/, (0, cors_1.default)({ origin: allowedOrigins, credentials: true }));
 exports.app
     .use((0, morgan_1.default)("dev"))
     .use(express_1.default.urlencoded({ extended: true }))
@@ -29,17 +41,13 @@ exports.app
     .use((0, compression_1.default)())
     .use(rateLimiter_1.limiter);
 exports.app.use((req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "same-site");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     next();
 });
-exports.app.use("/uploads/images", (0, cors_1.default)(corsOptions), express_1.default.static(path_1.default.join(__dirname, "../uploads/images")));
+exports.app.use("/uploads/images", (0, cors_1.default)({ origin: allowedOrigins, credentials: true }), express_1.default.static(path_1.default.join(__dirname, "../uploads/images")));
 exports.app.use(v1_1.default);
 exports.app.use((err, req, res, next) => {
     const status = err.status || 500;
     const message = err.message || "Internal Server Error";
-    const errCode = err.code || "INTERNAL_SERVER_ERROR";
-    res.status(status).json({
-        message,
-        error: errCode,
-    });
+    res.status(status).json({ message });
 });

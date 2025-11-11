@@ -52,7 +52,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.worker
     container_name: ratewise_worker
     restart: always
     env_file: .env

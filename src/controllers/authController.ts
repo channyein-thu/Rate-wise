@@ -52,10 +52,10 @@ export const register = [
     // If sms OTP cannot be sent, response error
     // Save OTP to DB
 
-    // const otp = 123456; // For testing
-    const otp = generateOTP();
+    const otp = 123456; // For testing
+    // const otp = generateOTP();
 
-    await sendOTP(email, otp);
+    // await sendOTP(email, otp);
     // For production use
     const salt = await bcrypt.genSalt(10);
     const hashOtp = await bcrypt.hash(otp.toString(), salt);
